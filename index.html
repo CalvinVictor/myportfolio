@@ -1,13 +1,434 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calvin Victor - Immersive 3D Portfolio</title>
+    <style>
+        /* --- Base & Reset --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000005;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+        
+        /* --- 3D Canvas --- */
+        #bg-canvas { position: fixed; top: 0; left: 0; outline: none; z-index: -1; }
+
+        /* --- Content Structure --- */
+        .content-wrapper {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            overflow-x: hidden;
+            height: 700vh; /* Increased height for new sections */
+        }
+        .content-section {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 1100px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            will-change: opacity;
+            pointer-events: none;
+        }
+        .content-section.visible { opacity: 1; pointer-events: auto; }
+
+        /* --- General Styling --- */
+        .section-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, #00ffff, #ff00c3, #ffff00);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 8s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+        @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+        /* --- Hero Section --- */
+        .hero-title { font-size: clamp(3.5rem, 10vw, 7rem); letter-spacing: -4px; font-weight: 900; margin-bottom: 1rem; }
+        .hero-subtitle { font-size: clamp(1rem, 3vw, 1.5rem); max-width: 700px; opacity: 0.9; line-height: 1.6; text-shadow: 0 0 10px rgba(255, 255, 255, 0.2); margin: 0 auto; }
+        .social-links { display: flex; gap: 1.5rem; margin-top: 2.5rem; flex-wrap: wrap; justify-content: center; }
+        .social-link {
+            display: inline-flex; align-items: center; gap: 0.8rem; padding: 0.8rem 1.8rem;
+            background: rgba(10, 10, 20, 0.5); border: 1px solid rgba(0, 255, 255, 0.3); border-radius: 50px;
+            color: #fff; text-decoration: none; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .social-link:hover {
+            border-color: #00ffff; background: rgba(0, 255, 255, 0.1);
+            transform: translateY(-5px) scale(1.05); box-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
+        }
+
+        /* --- Skills Section --- */
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 4rem; }
+        .skill-card {
+            background: radial-gradient(circle at 50% 0%, rgba(0, 255, 136, 0.1), transparent 70%), rgba(10, 10, 20, 0.5);
+            border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 20px; padding: 2rem;
+            backdrop-filter: blur(12px); transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .skill-card:hover { transform: translateY(-15px) rotateX(10deg) scale(1.05); border-color: #00ff88; box-shadow: 0 30px 60px rgba(0, 255, 136, 0.2); }
+        .skill-icon { font-size: 3rem; margin-bottom: 1.5rem; }
+        .skill-card h3 { margin-bottom: 0.5rem; color: #00ff88; }
+        .skill-card p { font-size: 0.9rem; line-height: 1.5; opacity: 0.8; }
+        
+        /* --- Projects Section --- */
+        .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; margin-top: 4rem; }
+        .project-card {
+            background: radial-gradient(circle at 50% 0%, rgba(255, 0, 136, 0.1), transparent 70%), rgba(10, 10, 20, 0.5);
+            border: 1px solid rgba(255, 0, 136, 0.3); border-radius: 25px; overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); text-align: left;
+        }
+        .project-card:hover { transform: translateY(-20px) scale(1.03); box-shadow: 0 40px 80px rgba(255, 0, 136, 0.3); border-color: #ff0088; }
+        .project-image { height: 180px; background-size: cover; background-position: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);}
+        .project-content { padding: 1.5rem; }
+        .project-title { font-size: 1.4rem; color: #e0e0e0; margin-bottom: 1rem; }
+        .project-tech { margin-top: 1rem; }
+        .tech-tag {
+            background: rgba(0, 255, 136, 0.2); color: #00ff88; padding: 0.3rem 0.8rem;
+            border-radius: 15px; font-size: 0.8rem; display: inline-block; margin: 0.2rem;
+        }
+
+        /* --- Journey / Timeline Section --- */
+        .timeline { position: relative; max-width: 800px; margin: 4rem auto 0; }
+        .timeline::before {
+            content: ''; position: absolute; left: 20px; top: 0; bottom: 0; width: 2px;
+            background: linear-gradient(180deg, rgba(0, 255, 255, 0) 0%, #00ffff 50%, rgba(0, 255, 255, 0) 100%);
+        }
+        .timeline-item { position: relative; padding-left: 60px; margin-bottom: 3rem; text-align: left; }
+        .timeline-item::before {
+            content: ''; position: absolute; left: 10px; top: 5px; width: 20px; height: 20px;
+            border-radius: 50%; background: #000; border: 3px solid #00ffff;
+            box-shadow: 0 0 15px #00ffff;
+        }
+        .timeline-item h4 { font-size: 1.4rem; color: #e0e0e0; }
+        .timeline-item h5 { font-size: 1rem; color: #00ffff; margin: 0.25rem 0 0.75rem 0; font-weight: normal; }
+        .timeline-item p { font-size: 0.9rem; line-height: 1.6; opacity: 0.8; }
+        
+        /* --- Achievements & Certs Section (NEW) --- */
+        .achievements-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 4rem; }
+        .achievement-card {
+            background: radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.1), transparent 70%), rgba(10, 10, 20, 0.5);
+            border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 20px; padding: 2rem;
+            backdrop-filter: blur(12px); text-align: left;
+        }
+        .achievement-card .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+        .achievement-card h3 { margin-bottom: 0.5rem; font-size:1.2rem; color: #FFD700; }
+        .achievement-card p { font-size: 0.9rem; line-height: 1.5; opacity: 0.8; }
+
+        /* --- Contact Section --- */
+        .contact-btn {
+            display: inline-flex; align-items: center; gap: 1rem; padding: 1.2rem 2.5rem; text-decoration: none;
+            border-radius: 50px; font-weight: 700; font-size: 1.1rem; transition: all 0.4s ease;
+            margin: 1rem; border: 2px solid transparent; background: linear-gradient(90deg, #00ff88, #00ffff);
+            color: #000; box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        }
+        .contact-btn:hover { transform: scale(1.1); box-shadow: 0 0 50px rgba(0, 255, 136, 0.8); }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .content-wrapper { height: 800vh; }
+            .hero-title { font-size: clamp(2.5rem, 15vw, 4rem); letter-spacing: -2px; }
+            .hero-subtitle { font-size: clamp(1rem, 4vw, 1.2rem); }
+            .skills-grid, .projects-grid, .achievements-grid { grid-template-columns: 1fr; }
+            .skill-card:hover, .project-card:hover { transform: translateY(-10px); }
+        }
+
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="content-wrapper">
+    
+        <section id="hero" class="content-section">
+            <h1 class="hero-title section-title">CALVIN VICTOR</h1>
+            <p class="hero-subtitle">
+                MCA graduate student with expertise in full-stack development, data analysis, and Al tools. Experienced in developing web applications and chatbots, with strong skills and cloud deployment. Driven to apply knowledge, learn continuously, and contribute through innovative solutions.
+            </p>
+            <div class="social-links">
+                <a href="https://linkedin.com/in/calvinvictor51" target="_blank" class="social-link">💼 LinkedIn</a>
+                <a href="https://github.com/CalvinVictor" target="_blank" class="social-link">🐱 GitHub</a>
+                <a href="mailto:calvinvic1611@gmail.com" class="social-link">📧 Email</a>
+            </div>
+        </section>
+
+        <section id="skills" class="content-section">
+            <h2 class="section-title">Technical Skills</h2>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <div class="skill-icon">💻</div>
+                    <h3>Languages</h3>
+                    <p>JavaScript, HTML, CSS, SQL (MySQL), Mongodb, PHP, Python</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">🔩</div>
+                    <h3>Frameworks & Libraries</h3>
+                    <p>React.js (intermediate), Node.js (beginner), Vite, Bootstrap, Tailwind CSS (basic), GRADIO, Transformers, Material UI, OpenAI</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">☁️</div>
+                    <h3>Developer Tools & Cloud</h3>
+                    <p>Git, VS Code, Hugging Face, Google Colab, AWS EC2</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="content-section">
+            <h2 class="section-title">Projects</h2>
+            <div class="projects-grid">
+                 <div class="project-card">
+                    <div class="project-image"></div>
+                    <div class="project-content">
+                        <h3 class="project-title">AI Chatbot</h3>
+                        <p>Developed and hosted an intelligent chatbot using Gradio, OpenAI API, and LLM Chain method for content creation and public access.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">Gradio</span><span class="tech-tag">OpenAI API</span><span class="tech-tag">LLM</span><span class="tech-tag">NLP</span><span class="tech-tag">Hugging Face</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                    <div class="project-content">
+                        <h3 class="project-title">DJ Booking System</h3>
+                        <p>Created a full-stack web application for DJ service management, profiles, booking forms, event scheduling, and an authenticated admin panel with email notifications.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">HTML</span><span class="tech-tag">CSS</span><span class="tech-tag">JavaScript</span><span class="tech-tag">PHP</span><span class="tech-tag">MySQL</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                    <div class="project-content">
+                        <h3 class="project-title">Learning Management System (LMS) with Chatbot</h3>
+                        <p>Developed a full-stack LMS with Admin, Instructor, and User dashboards, featuring course management, real-time analytics, and an integrated chatbot for learner support.</p>
+                        <div class="project-tech">
+                            <span class="tech-tag">MERN Stack</span><span class="tech-tag">Google API</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="journey" class="content-section">
+            <h2 class="section-title">Journey</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>Full Stack Web Developer (Freelance)</h4>
+                    <h5>Ooty Baker & Confectioner, Bengaluru | May 2025 - July 2025</h5>
+                    <p>Designed and deployed a scalable B2B website (www.gimmieooty.in) to digitalize the client's operations and expand market reach, building a fully responsive front-end and dynamic content management using PHP with CMS integration.</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Frontend Developer Intern</h4>
+                    <h5>Alpha Tech Academy, Bengaluru | April 2024 - May 2024</h5>
+                    <p>Designed and developed responsive web applications, improving user experience and interface efficiency using PHP, CSS, JSP, and HTML.</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>Master of Computer Applications (CGPA-7.9)</h4>
+                    <h5>St. Joseph's University, Bengaluru | July 2024 - Present</h5>
+                </div>
+                <div class="timeline-item">
+                    <h4>Bachelor of Computer Applications (CGPA-8.1)</h4>
+                    <h5>Vijaya College R.V Road, Bengaluru | 2021 - 2024</h5>
+                </div>
+            </div>
+        </section>
+        
+        <section id="achievements" class="content-section">
+            <h2 class="section-title">Achievements & Certifications</h2>
+            <div class="achievements-grid">
+                <div class="achievement-card">
+                    <div class="icon">🏆</div>
+                    <h3>Media Head - IEEE Student Branch</h3>
+                    <p>Led media and communication for IEEE events, managing digital content, social media, and promotions to boost student engagement and branch visibility at St. Joseph's University.</p>
+                </div>
+                <div class="achievement-card">
+                    <div class="icon">📜</div>
+                    <h3>Certifications</h3>
+                    <p>
+                        • LangChain Chat with Your Data - DeepLearning.AI<br>
+                        • Web Development in React.js - Coursera<br>
+                        • Microsoft Applied Skills: Power Apps<br>
+                        • Cloud Security on AWS - Edureka<br>
+                        • Accenture Software Engineering Simulation
+                    </p>
+                </div>
+                 <div class="achievement-card">
+                    <div class="icon">🔬</div>
+                    <h3>Research & Publications</h3>
+                    <p>
+                        • "Secure and Efficient Data Transmission in Wireless Networks", Springer CCIS, ICAIH 2025<br>
+                        • "Wearable Health Monitor", ICCIT 2025<br>
+                        • "Review on Digital Twin...", ICCIT 2025
+                    </p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="contact" class="content-section">
+            <h2 class="section-title">Make Contact</h2>
+            <p class="hero-subtitle">
+                I'm driven to apply my knowledge, learn continuously, and contribute through innovative solutions. Let's connect and explore the possibilities.
+            </p>
+            <div>
+                <a href="mailto:calvinvic1611@gmail.com" class="contact-btn">
+                    <span>🚀</span> Launch a Message
+                </a>
+            </div>
+        </section>
+
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- SCENE SETUP ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.querySelector('#bg-canvas'),
+            antialias: true,
+        });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        // --- SMOOTH SCROLLING SETUP (LERPING) ---
+        // This object holds the target (scroll-based) and current (eased) positions
+        const cameraState = {
+            target: { x: 0, y: 0, z: 30, rotY: 0 },
+            current: { x: 0, y: 0, z: 30, rotY: 0 },
+        };
+        const smoothingFactor = 0.05; // Adjust this value for more/less smoothing (e.g., 0.1 is faster, 0.02 is slower)
+
+        // --- LIGHTING ---
+        const pointLight = new THREE.PointLight(0xffffff, 200);
+        pointLight.position.set(5, 5, 5);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(pointLight, ambientLight);
+
+        // --- 3D OBJECTS ---
+        const geometry = new THREE.IcosahedronGeometry(10, 1);
+        const material = new THREE.MeshStandardMaterial({ color: 0x00ffff, wireframe: true });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
+        const torus = new THREE.Mesh(
+            new THREE.TorusGeometry(15, 2, 16, 100),
+            new THREE.MeshStandardMaterial({ color: 0xff00c3 })
+        );
+        torus.position.set(20, 10, -50);
+        scene.add(torus);
+
+        // --- STARFIELD ---
+        function addStar() {
+            const geometry = new THREE.SphereGeometry(0.15, 24, 24);
+            const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(geometry, material);
+            const [x, y, z] = Array(3).fill().map(() => THREE.MathUtils.randFloatSpread(300));
+            star.position.set(x, y, z);
+            scene.add(star);
+        }
+        Array(400).fill().forEach(addStar);
+
+        // --- SCROLL-BASED ANIMATION ---
+        const sections = document.querySelectorAll('.content-section');
+        const totalHeight = document.querySelector('.content-wrapper').clientHeight - window.innerHeight;
+
+        function updateScrollTargets() {
+            const scrollY = window.scrollY;
+            const scrollPercent = scrollY / totalHeight;
+            
+            // This function ONLY updates the target values, it doesn't move the camera directly.
+            cameraState.target.z = 30 - (scrollPercent * 100);
+            cameraState.target.x = scrollPercent * 20;
+            cameraState.target.y = -scrollPercent * 10;
+            cameraState.target.rotY = scrollPercent * Math.PI * 0.5;
+
+            // This part still happens instantly to show/hide content correctly.
+            const visibleSectionIndex = Math.floor(scrollPercent * (sections.length - 0.01));
+            sections.forEach((section, index) => {
+                if (index === visibleSectionIndex) {
+                    section.classList.add('visible');
+                } else {
+                    section.classList.remove('visible');
+                }
+            });
+        }
+        window.addEventListener('scroll', updateScrollTargets);
+        updateScrollTargets(); // Initial call
+
+        // --- MOUSE MOVE INTERACTION ---
+        let mouseX = 0, mouseY = 0;
+        function onMouseMove(event) {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        }
+        window.addEventListener('mousemove', onMouseMove);
+
+        // --- LERP FUNCTION for smoothing ---
+        function lerp(start, end, t) {
+            return start * (1 - t) + end * t;
+        }
+
+        // --- ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // In the animation loop, we LERP the current camera state towards the target state.
+            // This creates the smooth, eased motion.
+            cameraState.current.x = lerp(cameraState.current.x, cameraState.target.x, smoothingFactor);
+            cameraState.current.y = lerp(cameraState.current.y, cameraState.target.y, smoothingFactor);
+            cameraState.current.z = lerp(cameraState.current.z, cameraState.target.z, smoothingFactor);
+            cameraState.current.rotY = lerp(cameraState.current.rotY, cameraState.target.rotY, smoothingFactor);
+
+            // Now, apply these smoothed values to the actual camera object.
+            camera.position.set(cameraState.current.x, cameraState.current.y, cameraState.current.z);
+            camera.rotation.y = cameraState.current.rotY;
+
+            // Other animations
+            const elapsedTime = clock.getElapsedTime();
+            sphere.rotation.y = elapsedTime * 0.1;
+            torus.rotation.x = 0.2 * elapsedTime;
+            torus.rotation.y = 0.1 * elapsedTime;
+
+            // Mouse move effect on camera group/scene for subtle parallax
+            const cameraGroup = new THREE.Group();
+            cameraGroup.add(camera);
+            scene.add(cameraGroup);
+            cameraGroup.position.x += (mouseX * 2 - cameraGroup.position.x) * 0.02;
+            cameraGroup.position.y += (mouseY * 2 - cameraGroup.position.y) * 0.02;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- WINDOW RESIZE ---
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener('resize', onWindowResize);
+    </script>
+</body>
 </html>
