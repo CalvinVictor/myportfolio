@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://moonlit-syrniki-fd2d8b.netlify.app/sitemap.xml
