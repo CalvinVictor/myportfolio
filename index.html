@@ -174,7 +174,7 @@
         .content-wrapper {
             position: relative;
             z-index: 2;
-            width: 100%;
+            width: 1000%;
             overflow-x: hidden;
             height: 700vh; /* Increased height for new sections */
         }
@@ -296,7 +296,27 @@
             .skills-grid, .projects-grid, .achievements-grid { grid-template-columns: 1fr; }
             .skill-card:hover, .project-card:hover { transform: translateY(-10px); }
         }
-
+    
+        /* --- Project Link Buttons --- */
+        .project-links {
+            margin-top: 1.25rem; /* 20px */
+        }
+        .project-link {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            color: #000;
+            background: linear-gradient(90deg, #00ff88, #00ffff);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+        }
+        .project-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 35px rgba(0, 255, 136, 0.7);
+        }
+        
     </style>
 </head>
 <body>
@@ -354,7 +374,7 @@
             </div>
         </div>
         
-        <div class="project-card">
+    <div class="project-card">
             <div class="project-image" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);"></div>
             <div class="project-content">
                 <h3 class="project-title">Walmart Clone</h3>
@@ -363,20 +383,29 @@
                     <span class="tech-tag">React</span><span class="tech-tag">Node.js</span><span class="tech-tag">E-commerce</span><span class="tech-tag">Responsive</span><span class="tech-tag">API Integration</span>
                 </div>
                 <div class="project-links">
-                    <a href="#" target="_blank" class="project-link">Live Demo</a>
+                    <a href="https://dazzling-chaja-c9c9b2.netlify.app/" target="_blank" class="project-link">Live Demo</a>
                 </div>
             </div>
         </div>
 
         <div class="project-card">
-            <div class="project-image" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);"></div>
+            <div class="project-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
             <div class="project-content">
-                <h3 class="project-title">AI Chatbot</h3>
-                <p>Developed and hosted an intelligent chatbot using Gradio, OpenAI API, and LLM Chain method for content creation and public access.</p>
+                <h3 class="project-title">CourseHub - MERN stack LMS</h3>
+                <p>MERN stack LMS with competitive gamification. Features a real-time leaderboard, role-based access (Student/Instructor/Admin), automated quizzes, and an integrated AI chatbot for 24/7 doubt clarification.</p>
                 <div class="project-tech">
-                    <span class="tech-tag">Gradio</span><span class="tech-tag">OpenAI API</span><span class="tech-tag">LLM</span><span class="tech-tag">NLP</span><span class="tech-tag">Hugging Face</span>
+                    <span class="tech-tag">MongoDB</span>
+                    <span class="tech-tag">Express.js</span>
+                    <span class="tech-tag">React</span>
+                    <span class="tech-tag">Node.js</span>
+                    <span class="tech-tag">JWT</span>
+                    <span class="tech-tag">REST APIs</span>
                 </div>
-            </div>
+                <div class="project-links">
+                    
+                <a href="https://drive.google.com/drive/folders/1zu9wBPFILIkCSJvlo0SETtvytK9PHPph" target="_blank" class="project-link">images</a>
+                    </div>
+                </div>
         </div>
         
         <div class="project-card">
@@ -390,128 +419,8 @@
             </div>
         </div>
         
-        <div class="project-card">
-            <div class="project-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
-            <div class="project-content">
-                <h3 class="project-title">Learning Management System (LMS) with Chatbot</h3>
-                <p>Developed a full-stack LMS with Admin, Instructor, and User dashboards, featuring course management, real-time analytics, and an integrated chatbot for learner support.</p>
-                <div class="project-tech">
-                    <span class="tech-tag">MERN Stack</span><span class="tech-tag">Google API</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<style>
-.content-section {
-    padding: 60px 0;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.section-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 50px;
-    color: #333;
-}
-
-.projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 30px;
-    padding: 0 20px;
-}
-
-.project-card {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.project-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-.project-image {
-    height: 200px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.project-content {
-    padding: 25px;
-}
-
-.project-title {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.project-content p {
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 20px;
-}
-
-.project-tech {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 20px;
-}
-
-.tech-tag {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-
-.project-links {
-    margin-top: 15px;
-}
-
-.project-link {
-    display: inline-block;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.project-link:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-}
-
-@media (max-width: 768px) {
-    .projects-grid {
-        grid-template-columns: 1fr;
-        padding: 0 15px;
-    }
     
-    .section-title {
-        font-size: 2rem;
-    }
-}
-</style>
+</section>
         
         <section id="journey" class="content-section">
             <h2 class="section-title">Journey</h2>
